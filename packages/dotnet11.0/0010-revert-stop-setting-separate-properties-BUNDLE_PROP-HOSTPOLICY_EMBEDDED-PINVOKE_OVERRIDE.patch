@@ -2,10 +2,10 @@ Revert https://github.com/dotnet/runtime/commit/da5bd2bc91c78a457c4bf28c09759f36
 Workaround https://github.com/dotnet/runtime/issues/111071
 
 diff --git a/src/runtime/docs/design/features/host-runtime-information.md b/src/runtime/docs/design/features/host-runtime-information.md
-index b42102930..e6557a1e0 100644
+index 5501d8c04..cb73cd018 100644
 --- a/src/runtime/docs/design/features/host-runtime-information.md
 +++ b/src/runtime/docs/design/features/host-runtime-information.md
-@@ -88,16 +88,10 @@ List of directory paths corresponding to shared store paths and additional probi
+@@ -96,16 +96,10 @@ Absolute path to the directory containing `System.Private.CoreLib.dll`. When set
  
  Hex string representation of a function pointer. It is set when running a single-file application. The function is called by the runtime to look for assemblies bundled into the application. The expected signature is defined as `BundleProbeFn` in [`coreclrhost.h`](/src/coreclr/hosts/inc/coreclrhost.h)
  
@@ -23,10 +23,10 @@ index b42102930..e6557a1e0 100644
 -
 -**.NET 9 and above** This property is no longer set by the host. `host_runtime_contract.pinvoke_override` is set when running a self-contained single-file application.
 diff --git a/src/runtime/src/coreclr/dlls/mscoree/exports.cpp b/src/runtime/src/coreclr/dlls/mscoree/exports.cpp
-index 151542344..71aae1573 100644
+index c52919fd9..ae720f76b 100644
 --- a/src/runtime/src/coreclr/dlls/mscoree/exports.cpp
 +++ b/src/runtime/src/coreclr/dlls/mscoree/exports.cpp
-@@ -136,6 +136,7 @@ static void ConvertConfigPropertiesToUnicode(
+@@ -178,6 +178,7 @@ static void ConvertConfigPropertiesToUnicode(
      LPCWSTR** propertyValuesWRef,
      BundleProbeFn** bundleProbe,
      PInvokeOverrideFn** pinvokeOverride,
@@ -34,7 +34,7 @@ index 151542344..71aae1573 100644
      host_runtime_contract** hostContract)
  {
      LPCWSTR* propertyKeysW = new (nothrow) LPCWSTR[propertyCount];
-@@ -167,6 +168,11 @@ static void ConvertConfigPropertiesToUnicode(
+@@ -209,6 +210,11 @@ static void ConvertConfigPropertiesToUnicode(
              if (*pinvokeOverride == nullptr)
                  *pinvokeOverride = (PInvokeOverrideFn*)u16_strtoui64(propertyValuesW[propertyIndex], nullptr, 0);
          }
@@ -46,7 +46,7 @@ index 151542344..71aae1573 100644
          else if (strcmp(propertyKeys[propertyIndex], HOST_PROPERTY_RUNTIME_CONTRACT) == 0)
          {
              // Host contract is passed in as the value of HOST_RUNTIME_CONTRACT property (encoded as a string).
-@@ -244,6 +250,7 @@ int coreclr_initialize(
+@@ -286,6 +292,7 @@ int coreclr_initialize(
      LPCWSTR* propertyKeysW;
      LPCWSTR* propertyValuesW;
      BundleProbeFn* bundleProbe = nullptr;
@@ -54,7 +54,7 @@ index 151542344..71aae1573 100644
      PInvokeOverrideFn* pinvokeOverride = nullptr;
      host_runtime_contract* hostContract = nullptr;
  
-@@ -259,6 +266,7 @@ int coreclr_initialize(
+@@ -301,6 +308,7 @@ int coreclr_initialize(
          &propertyValuesW,
          &bundleProbe,
          &pinvokeOverride,
@@ -62,7 +62,7 @@ index 151542344..71aae1573 100644
          &hostContract);
  
  #ifdef TARGET_UNIX
-@@ -273,6 +281,8 @@ int coreclr_initialize(
+@@ -315,6 +323,8 @@ int coreclr_initialize(
      }
  #endif
  
@@ -72,10 +72,10 @@ index 151542344..71aae1573 100644
      {
          HostInformation::SetContract(hostContract);
 diff --git a/src/runtime/src/coreclr/vm/ceemain.cpp b/src/runtime/src/coreclr/vm/ceemain.cpp
-index 4be75dc91..bb1f922fd 100644
+index b295dba46..9b245d604 100644
 --- a/src/runtime/src/coreclr/vm/ceemain.cpp
 +++ b/src/runtime/src/coreclr/vm/ceemain.cpp
-@@ -228,12 +228,13 @@ extern "C" HRESULT __cdecl CorDBGetInterface(DebugInterface** rcInterface);
+@@ -231,12 +231,13 @@ extern "C" HRESULT __cdecl CorDBGetInterface(DebugInterface** rcInterface);
  
  // g_coreclr_embedded indicates that coreclr is linked directly into the program
  // g_hostpolicy_embedded indicates that the hostpolicy library is linked directly into the executable
@@ -151,10 +151,10 @@ index 9d9b1ae39..7541bc315 100644
  }
  
 diff --git a/src/runtime/src/native/corehost/apphost/static/CMakeLists.txt b/src/runtime/src/native/corehost/apphost/static/CMakeLists.txt
-index 7187162d6..cb2420489 100644
+index 0b1eaacd0..936055aa7 100644
 --- a/src/runtime/src/native/corehost/apphost/static/CMakeLists.txt
 +++ b/src/runtime/src/native/corehost/apphost/static/CMakeLists.txt
-@@ -36,6 +36,7 @@ set(HEADERS
+@@ -39,6 +39,7 @@ set(HEADERS
      ../../fxr_resolver.h
  )
  
@@ -163,7 +163,7 @@ index 7187162d6..cb2420489 100644
  if (NOT CLR_CMAKE_TARGET_ANDROID)
      add_compile_definitions(NATIVE_LIBS_EMBEDDED)
 diff --git a/src/runtime/src/native/corehost/host_runtime_contract.h b/src/runtime/src/native/corehost/host_runtime_contract.h
-index 65bc3c746..1c93b192e 100644
+index 8bba040a6..0df1bef12 100644
 --- a/src/runtime/src/native/corehost/host_runtime_contract.h
 +++ b/src/runtime/src/native/corehost/host_runtime_contract.h
 @@ -19,6 +19,7 @@
@@ -171,9 +171,9 @@ index 65bc3c746..1c93b192e 100644
  #define HOST_PROPERTY_BUNDLE_EXTRACTION_PATH "BUNDLE_EXTRACTION_PATH"
  #define HOST_PROPERTY_ENTRY_ASSEMBLY_NAME "ENTRY_ASSEMBLY_NAME"
 +#define HOST_PROPERTY_HOSTPOLICY_EMBEDDED "HOSTPOLICY_EMBEDDED"
+ #define HOST_PROPERTY_ARGV0 "ARGV0"
  #define HOST_PROPERTY_NATIVE_DLL_SEARCH_DIRECTORIES "NATIVE_DLL_SEARCH_DIRECTORIES"
  #define HOST_PROPERTY_PINVOKE_OVERRIDE "PINVOKE_OVERRIDE"
- #define HOST_PROPERTY_PLATFORM_RESOURCE_ROOTS "PLATFORM_RESOURCE_ROOTS"
 diff --git a/src/runtime/src/native/corehost/hostpolicy/coreclr.cpp b/src/runtime/src/native/corehost/hostpolicy/coreclr.cpp
 index 8f71aa18c..a2d436f47 100644
 --- a/src/runtime/src/native/corehost/hostpolicy/coreclr.cpp
@@ -203,10 +203,10 @@ index 1ee29ba7e..c007e67fe 100644
      Last
  };
 diff --git a/src/runtime/src/native/corehost/hostpolicy/hostpolicy_context.cpp b/src/runtime/src/native/corehost/hostpolicy/hostpolicy_context.cpp
-index e51347221..b6715c2fa 100644
+index 010ea0de6..8cf550e7b 100644
 --- a/src/runtime/src/native/corehost/hostpolicy/hostpolicy_context.cpp
 +++ b/src/runtime/src/native/corehost/hostpolicy/hostpolicy_context.cpp
-@@ -343,6 +343,44 @@ int hostpolicy_context_t::initialize(const hostpolicy_init_t &hostpolicy_init, c
+@@ -338,6 +338,44 @@ int hostpolicy_context_t::initialize(const hostpolicy_init_t &hostpolicy_init, c
          coreclr_properties.add(common_property::StartUpHooks, startup_hooks.c_str());
      }
  
