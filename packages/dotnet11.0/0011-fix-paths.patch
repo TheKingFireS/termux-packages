@@ -1,18 +1,18 @@
 diff --git a/src/msbuild/src/Shared/NamedPipeUtil.cs b/src/msbuild/src/Shared/NamedPipeUtil.cs
-index 0b85b05ba..9d7312db7 100644
+index b62192b44..b122a02e3 100644
 --- a/src/msbuild/src/Shared/NamedPipeUtil.cs
 +++ b/src/msbuild/src/Shared/NamedPipeUtil.cs
 @@ -31,7 +31,7 @@ namespace Microsoft.Build.Shared
+                 // can be quite long, leaving very little room for the actual pipe name. Fortunately,
                  // '/tmp' is mandated by POSIX to always be a valid temp directory, so we can use that
                  // instead.
- #if !CLR2COMPATIBILITY
 -                return Path.Combine("/tmp", pipeName);
 +                return Path.Combine("@TERMUX_PREFIX@/tmp", pipeName);
- #else
-                 // We should never get here. This would be a net35 task host running on unix.
-                 ErrorUtilities.ThrowInternalError("Task host used on unix in retrieving the pipe name.");
+             }
+             else
+             {
 diff --git a/src/runtime/src/coreclr/debug/createdump/createdumpmain.cpp b/src/runtime/src/coreclr/debug/createdump/createdumpmain.cpp
-index b3426a31d..d4ef29cdb 100644
+index 68e5f6929..f1e1310bb 100644
 --- a/src/runtime/src/coreclr/debug/createdump/createdumpmain.cpp
 +++ b/src/runtime/src/coreclr/debug/createdump/createdumpmain.cpp
 @@ -8,7 +8,7 @@
@@ -25,10 +25,10 @@ index b3426a31d..d4ef29cdb 100644
  #endif
  
 diff --git a/src/runtime/src/coreclr/debug/createdump/createdumppal.cpp b/src/runtime/src/coreclr/debug/createdump/createdumppal.cpp
-index 94e4606ea..8a6405b71 100644
+index b58df0132..7b245b5f9 100644
 --- a/src/runtime/src/coreclr/debug/createdump/createdumppal.cpp
 +++ b/src/runtime/src/coreclr/debug/createdump/createdumppal.cpp
-@@ -95,7 +95,7 @@ UninitializePAL(
+@@ -96,7 +96,7 @@ UninitializePAL(
      }
  }
  
@@ -38,10 +38,10 @@ index 94e4606ea..8a6405b71 100644
  DWORD
  PALAPI
 diff --git a/src/runtime/src/coreclr/nativeaot/Runtime/eventpipe/ep-rt-aot.h b/src/runtime/src/coreclr/nativeaot/Runtime/eventpipe/ep-rt-aot.h
-index 78d6578dc..ec46cd2ac 100644
+index 45a5c65f3..b77847a80 100644
 --- a/src/runtime/src/coreclr/nativeaot/Runtime/eventpipe/ep-rt-aot.h
 +++ b/src/runtime/src/coreclr/nativeaot/Runtime/eventpipe/ep-rt-aot.h
-@@ -1074,7 +1074,7 @@ ep_rt_temp_path_get (
+@@ -1118,7 +1118,7 @@ ep_rt_temp_path_get (
          if (path == NULL){
              path = getenv ("TEMP");
              if (path == NULL)
@@ -51,10 +51,10 @@ index 78d6578dc..ec46cd2ac 100644
      }
  
 diff --git a/src/runtime/src/coreclr/pal/src/include/pal/palinternal.h b/src/runtime/src/coreclr/pal/src/include/pal/palinternal.h
-index 603ea73b0..e1006d883 100644
+index 871fb86ed..4094ee635 100644
 --- a/src/runtime/src/coreclr/pal/src/include/pal/palinternal.h
 +++ b/src/runtime/src/coreclr/pal/src/include/pal/palinternal.h
-@@ -229,7 +229,7 @@ function_name() to call the system's implementation
+@@ -227,7 +227,7 @@ function_name() to call the system's implementation
  #else
  // On Android, "/tmp/" doesn't exist; temporary files should go to
  // /data/local/tmp/
@@ -64,10 +64,10 @@ index 603ea73b0..e1006d883 100644
  
  #define PROCESS_PIPE_NAME_PREFIX ".dotnet-pal-processpipe"
 diff --git a/src/runtime/src/coreclr/vm/perfmap.cpp b/src/runtime/src/coreclr/vm/perfmap.cpp
-index df46fe9c1..d3f634825 100644
+index e782ef3de..432710493 100644
 --- a/src/runtime/src/coreclr/vm/perfmap.cpp
 +++ b/src/runtime/src/coreclr/vm/perfmap.cpp
-@@ -23,7 +23,7 @@
+@@ -24,7 +24,7 @@
  #else
  // On Android, "/tmp/" doesn't exist; temporary files should go to
  // /data/local/tmp/
@@ -106,7 +106,7 @@ index ead221a3f..f1a279e6f 100644
              {
                  return "/usr/local/lib/mono/xbuild-frameworks";
 diff --git a/src/runtime/src/libraries/System.Console/src/System/TermInfo.DatabaseFactory.cs b/src/runtime/src/libraries/System.Console/src/System/TermInfo.DatabaseFactory.cs
-index 7ae7cc51e..c012c6131 100644
+index 8ece87480..a92495022 100644
 --- a/src/runtime/src/libraries/System.Console/src/System/TermInfo.DatabaseFactory.cs
 +++ b/src/runtime/src/libraries/System.Console/src/System/TermInfo.DatabaseFactory.cs
 @@ -16,11 +16,11 @@ internal sealed class DatabaseFactory
@@ -127,10 +127,10 @@ index 7ae7cc51e..c012c6131 100644
  
          internal static string? HomeTermInfoLocation
 diff --git a/src/runtime/src/libraries/System.Formats.Tar/src/System/Formats/Tar/TarHeader.Write.cs b/src/runtime/src/libraries/System.Formats.Tar/src/System/Formats/Tar/TarHeader.Write.cs
-index df33b14d3..350ec795a 100644
+index 16df825fa..f86fdd606 100644
 --- a/src/runtime/src/libraries/System.Formats.Tar/src/System/Formats/Tar/TarHeader.Write.cs
 +++ b/src/runtime/src/libraries/System.Formats.Tar/src/System/Formats/Tar/TarHeader.Write.cs
-@@ -1218,7 +1218,7 @@ private static string GenerateGlobalExtendedAttributeName(int globalExtendedAttr
+@@ -1152,7 +1152,7 @@ private static string GenerateGlobalExtendedAttributeName(int globalExtendedAttr
  
              string result = $"{tmp}/GlobalHead.{Environment.ProcessId}.{globalExtendedAttributesEntryNumber}";
              return result.Length >= FieldLengths.Name ?
@@ -187,7 +187,7 @@ index 23499bfc2..76dddcc99 100644
                  default:
                      if (!Enum.IsDefined(folder))
 diff --git a/src/runtime/src/libraries/System.Private.CoreLib/src/System/Environment.GetFolderPathCore.Unix.cs b/src/runtime/src/libraries/System.Private.CoreLib/src/System/Environment.GetFolderPathCore.Unix.cs
-index 9d7cf66b2..ccdb772c6 100644
+index 9bb364def..dff939eef 100644
 --- a/src/runtime/src/libraries/System.Private.CoreLib/src/System/Environment.GetFolderPathCore.Unix.cs
 +++ b/src/runtime/src/libraries/System.Private.CoreLib/src/System/Environment.GetFolderPathCore.Unix.cs
 @@ -52,8 +52,8 @@ private static string GetFolderPathCore(SpecialFolder folder, SpecialFolderOptio
@@ -214,7 +214,7 @@ index b2a9a4b06..44e3c1df6 100644
      }
  }
 diff --git a/src/runtime/src/libraries/System.Private.CoreLib/src/System/TimeZoneInfo.Unix.cs b/src/runtime/src/libraries/System.Private.CoreLib/src/System/TimeZoneInfo.Unix.cs
-index 89ce9d7be..0fcf9838b 100644
+index ae2da9723..029d0f133 100644
 --- a/src/runtime/src/libraries/System.Private.CoreLib/src/System/TimeZoneInfo.Unix.cs
 +++ b/src/runtime/src/libraries/System.Private.CoreLib/src/System/TimeZoneInfo.Unix.cs
 @@ -19,7 +19,7 @@ public sealed partial class TimeZoneInfo
@@ -266,10 +266,10 @@ index 0ebc434c3..55035809c 100644
  	g_assert (fp);
  
 diff --git a/src/runtime/src/mono/mono/mini/mini-posix.c b/src/runtime/src/mono/mono/mini/mini-posix.c
-index 4c36fd6b3..c42cedbfa 100644
+index 292047b29..0da2c34f9 100644
 --- a/src/runtime/src/mono/mono/mini/mini-posix.c
 +++ b/src/runtime/src/mono/mono/mini/mini-posix.c
-@@ -979,7 +979,7 @@ mono_gdb_render_native_backtraces (pid_t crashed_pid)
+@@ -978,7 +978,7 @@ mono_gdb_render_native_backtraces (pid_t crashed_pid)
  
  	char commands_filename [100];
  	commands_filename [0] = '\0';
@@ -279,7 +279,7 @@ index 4c36fd6b3..c42cedbfa 100644
  	// Create this file, overwriting if it already exists
  	int commands_handle = g_open (commands_filename, O_TRUNC | O_WRONLY | O_CREAT, S_IWUSR | S_IRUSR | S_IRGRP | S_IROTH);
 diff --git a/src/runtime/src/mono/mono/mini/mini-runtime.c b/src/runtime/src/mono/mono/mini/mini-runtime.c
-index 7cf63847f..839708288 100644
+index 6a2099535..4e3be2764 100644
 --- a/src/runtime/src/mono/mono/mini/mini-runtime.c
 +++ b/src/runtime/src/mono/mono/mini/mini-runtime.c
 @@ -1985,7 +1985,7 @@ mono_enable_jit_map (void)
@@ -314,10 +314,10 @@ index 50bd05b67..4f1ce2ca6 100644
  
  $graph->plot(\@data);
 diff --git a/src/runtime/src/native/corehost/hostmisc/pal.unix.cpp b/src/runtime/src/native/corehost/hostmisc/pal.unix.cpp
-index 4a6197f54..1c6f160c8 100644
+index be613a0c6..79f70c42a 100644
 --- a/src/runtime/src/native/corehost/hostmisc/pal.unix.cpp
 +++ b/src/runtime/src/native/corehost/hostmisc/pal.unix.cpp
-@@ -421,7 +421,7 @@ bool pal::get_global_dotnet_dirs(std::vector<pal::string_t>* recv)
+@@ -324,7 +324,7 @@ bool pal::get_global_dotnet_dirs(std::vector<pal::string_t>* recv)
  
  pal::string_t pal::get_dotnet_self_registered_config_location(pal::architecture arch)
  {
@@ -326,7 +326,7 @@ index 4a6197f54..1c6f160c8 100644
  
      //  ***Used only for testing***
      pal::string_t environment_install_location_override;
-@@ -613,7 +613,7 @@ bool pal::get_default_installation_dir_for_arch(pal::architecture arch, pal::str
+@@ -520,7 +520,7 @@ bool pal::get_default_installation_dir_for_arch(pal::architecture arch, pal::str
          recv->assign(_X("/usr/local/share/dotnet"));
      }
  #else
@@ -335,7 +335,7 @@ index 4a6197f54..1c6f160c8 100644
  #endif
      return true;
  }
-@@ -818,7 +818,7 @@ pal::string_t normalize_linux_rid(pal::string_t rid)
+@@ -750,7 +750,7 @@ pal::string_t normalize_linux_rid(pal::string_t rid)
  pal::string_t pal::get_current_os_rid_platform()
  {
      pal::string_t ridOS;
