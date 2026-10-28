@@ -93,7 +93,6 @@ termux_step_configure() {
 	fi
 
 	export ANDROID_NDK_ROOT="${TERMUX_PKG_TMPDIR}"
-	export ANDROID_PLATFORM_LEVEL="${TERMUX_PKG_API_LEVEL}"
 
 	# unified sysroot needed when CMAKE_SYSROOT / --sysroot cannot be used
 	export ROOTFS_DIR="${TERMUX_PKG_TMPDIR}/sysroot"
