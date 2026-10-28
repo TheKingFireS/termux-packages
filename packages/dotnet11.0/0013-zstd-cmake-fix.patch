@@ -1,0 +1,13 @@
+diff --git a/src/runtime/src/native/external/zstd/build/cmake/CMakeLists.txt b/src/runtime/src/native/external/zstd/build/cmake/CMakeLists.txt
+index 6b8f65fc0..a3ac13365 100644
+--- a/src/runtime/src/native/external/zstd/build/cmake/CMakeLists.txt
++++ b/src/runtime/src/native/external/zstd/build/cmake/CMakeLists.txt
+@@ -91,7 +91,7 @@ endif ()
+ if (ANDROID)
+     set(ZSTD_MULTITHREAD_SUPPORT_DEFAULT OFF)
+     # Old versions of bionic libc don't have fseeko/ftello
+-    if ((NOT ${ANDROID_PLATFORM_LEVEL}) OR ${ANDROID_PLATFORM_LEVEL} VERSION_LESS 24)
++    if ((NOT DEFINED ANDROID_PLATFORM_LEVEL) OR (ANDROID_PLATFORM_LEVEL VERSION_LESS 24))
+         message(STATUS "Setting compile definitions for old Android API")
+         add_compile_definitions(LIBC_NO_FSEEKO)
+     endif ()
